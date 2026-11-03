@@ -17,6 +17,38 @@ oracle-dataguard-ha-dr/
 └── docs/     -- architecture, protection modes, transition runbooks
 ```
 
+## Scripts and templates
+
+| File | What it does |
+|---|---|
+| `sql/dataguard_status.sql` | Read-only standby status report: role and protection mode, transport and apply lag, archive destination gaps, standby redo logs, managed recovery processes; exit 2 when a check fails |
+| `dgmgrl/show_configuration.dgmgrl` | Broker template: connect and show the configuration and each database in verbose form |
+| `dgmgrl/switchover.dgmgrl` | Broker template for a planned switchover, with validation before the switch |
+| `dgmgrl/failover.dgmgrl` | Broker template for an unplanned failover, with the reinstate steps that follow it |
+
+Check standby health from either side of the configuration (connect as a privileged user, e.g. `/ as sysdba`):
+
+```
+sqlplus / as sysdba @sql/dataguard_status.sql
+```
+
+Thresholds live in the `DEFINE` lines at the top of the script. A clean report means redo is flowing and apply is keeping up. It does not prove a failover will succeed. That proof comes from testing the transition, which is what the runbook covers.
+
+Show the broker configuration (replace `<PRIMARY_DB_UNIQUE_NAME>` first, and read the header before running it):
+
+```
+dgmgrl / @dgmgrl/show_configuration.dgmgrl
+```
+
+## Docs
+
+| Doc | What it covers |
+|---|---|
+| `docs/dataguard-architecture.md` | Physical standby concepts, redo transport, protection modes, the broker, fast-start failover, and the licensing notes for Active Data Guard and related options |
+| `docs/switchover-failover-runbook.md` | Planned switchover steps, unplanned failover steps, reinstate after failover, post-transition checks, and how to work a gap |
+
+Start with `docs/dataguard-architecture.md` if the protection mode has not been chosen yet. Start with `docs/switchover-failover-runbook.md` if a transition is already planned.
+
 ## Assumptions
 
 - Oracle 11g or later, Enterprise Edition. Data Guard itself is an Enterprise Edition feature, and the broker is the supported way to manage a configuration.
