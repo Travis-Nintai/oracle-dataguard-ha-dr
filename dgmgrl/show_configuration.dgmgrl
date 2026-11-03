@@ -1,0 +1,30 @@
+REM ==========================================================================
+REM show_configuration.dgmgrl
+REM
+REM Purpose:
+REM   Shows the Data Guard broker configuration and each database in
+REM   verbose form, so a problem is visible before it becomes an
+REM   incident. Read-only: this template changes nothing.
+REM
+REM Usage:
+REM   dgmgrl / @show_configuration.dgmgrl
+REM
+REM   Replace <PRIMARY_DB_UNIQUE_NAME> with the primary database's
+REM   DB_UNIQUE_NAME before running. The CONNECT uses operating system
+REM   authentication; use a connect string instead if the broker runs
+REM   from a remote host.
+REM
+REM Notes:
+REM   SHOW CONFIGURATION reports the protection mode, fast-start
+REM   failover state, and any warning or error on a database. SHOW
+REM   DATABASE VERBOSE adds the apply and transport state per
+REM   database. Run this before any planned transition, and compare
+REM   it with sql/dataguard_status.sql: the broker view and the
+REM   data dictionary view should agree.
+REM   Reviewed; not executed against a live Oracle instance.
+REM ==========================================================================
+
+CONNECT /
+SHOW CONFIGURATION VERBOSE;
+SHOW DATABASE VERBOSE '<PRIMARY_DB_UNIQUE_NAME>';
+EXIT;

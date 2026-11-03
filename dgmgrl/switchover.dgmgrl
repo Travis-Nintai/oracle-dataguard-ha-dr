@@ -1,0 +1,39 @@
+REM ==========================================================================
+REM switchover.dgmgrl
+REM
+REM Purpose:
+REM   Template for a PLANNED switchover: the primary and standby swap
+REM   roles with no data loss, typically for maintenance or testing.
+REM   Validation runs before the switch, and the configuration is
+REM   shown again after it.
+REM
+REM Usage:
+REM   dgmgrl / @switchover.dgmgrl
+REM
+REM   Replace <STANDBY_DB_UNIQUE_NAME> with the standby database's
+REM   DB_UNIQUE_NAME before running.
+REM
+REM WARNING:
+REM   A switchover reverses the roles of the primary and standby.
+REM   Application connections follow the new primary only if the
+REM   service configuration points them there, so plan the connection
+REM   cutover alongside this command. Do not run this against a
+REM   database you care about until the runbook in
+REM   docs/switchover-failover-runbook.md has been walked through on
+REM   a lab configuration. If VALIDATE DATABASE reports an error,
+REM   fix it first; do not force the switchover past a failed
+REM   validation.
+REM
+REM Notes:
+REM   A switchover requires the standby to be in sync, which is why
+REM   the validation step comes first. After the switch, the old
+REM   primary becomes the new standby and begins applying redo in
+REM   the other direction, so there is a path back.
+REM   Reviewed; not executed against a live Oracle instance.
+REM ==========================================================================
+
+CONNECT /
+VALIDATE DATABASE '<STANDBY_DB_UNIQUE_NAME>';
+SWITCHOVER TO '<STANDBY_DB_UNIQUE_NAME>';
+SHOW CONFIGURATION;
+EXIT;

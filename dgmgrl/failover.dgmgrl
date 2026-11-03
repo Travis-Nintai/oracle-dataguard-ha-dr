@@ -1,0 +1,43 @@
+REM ==========================================================================
+REM failover.dgmgrl
+REM
+REM Purpose:
+REM   Template for an UNPLANNED failover: the primary is gone and the
+REM   standby takes over as the new primary. This is the last-resort
+REM   transition, not the maintenance transition; for a planned
+REM   change of roles use switchover.dgmgrl instead.
+REM
+REM Usage:
+REM   dgmgrl / @failover.dgmgrl
+REM
+REM   Replace <STANDBY_DB_UNIQUE_NAME> with the standby database's
+REM   DB_UNIQUE_NAME before running.
+REM
+REM WARNING - READ BEFORE RUNNING:
+REM   Fail over only when the primary is confirmed unavailable, or
+REM   its writes are confirmed stopped. Failing over while the old
+REM   primary can still write is how two databases both believe they
+REM   are primary, and the resulting divergence is not repairable by
+REM   re-running a command. Depending on the protection mode and on
+REM   how much redo reached the standby, a failover can lose
+REM   committed transactions; that is the tradeoff being accepted
+REM   when this command runs.
+REM   After failover, the old primary must be reinstated before it
+REM   rejoins the configuration; it does not rejoin on its own. The
+REM   reinstate steps are in docs/switchover-failover-runbook.md.
+REM   Do not run this against a database you care about until the
+REM   runbook has been walked through on a lab configuration.
+REM
+REM Notes:
+REM   FAILOVER with no qualifier performs a complete failover, which
+REM   applies all redo available on the standby before opening it.
+REM   FAILOVER IMMEDIATE skips remaining redo and opens sooner, at
+REM   the cost of more potential data loss; it is not used here, so
+REM   the choice is deliberate rather than accidental.
+REM   Reviewed; not executed against a live Oracle instance.
+REM ==========================================================================
+
+CONNECT /
+FAILOVER TO '<STANDBY_DB_UNIQUE_NAME>';
+SHOW CONFIGURATION;
+EXIT;
